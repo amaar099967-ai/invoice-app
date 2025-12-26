@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>نظام فواتير المشاريع</title>
+
+<style>
+:root{font-size:16px}
+body{margin:0;font-family:Tahoma;background:#f1f3f6;direction:rtl}
+.header{background:#1f4e79;color:#fff;padding:12px;text-align:center;font-size:20px}
+.container{padding:10px}
+.card{background:#fff;border-radius:6px;padding:10px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.1)}
+label{font-size:13px}
+input{width:100%;padding:6px;margin:4px 0}
+button{padding:8px;margin:3px;font-size:14px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{border:1px solid #ccc;padding:5px;text-align:center}
+th{background:#e8eef5}
+.summary{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.summary div{background:#f8f9fb;border:1px solid #ccc;border-radius:5px;padding:10px;text-align:center}
+.summary span{font-size:18px;font-weight:bold;color:#1f4e79}
+.actions{display:flex;flex-wrap:wrap;gap:5px}
+</style>
+</head>
+
+<body>
+
+<div class="header">نظام فواتير المشاريع – كهرباء</div>
+
+<div class="container">
+
+<div class="card">
+<label>اسم العميل</label>
+<input id="client">
+<label>اسم المشروع</label>
+<input id="project">
+</div>
+
+<div class="card actions">
+<button onclick="exportData()">📤 تصدير</button>
+<button onclick="importData()">📥 استيراد</button>
+<button onclick="window.print()">🖨️ طباعة</button>
+<button onclick="fontUp()">A+</button>
+<button onclick="fontDown()">A-</button>
+<button onclick="camera.click()">📷 إدخال بالكاميرا</button>
+<input type="file" id="camera" accept="image/*" capture style="display:none">
+<input type="file" id="file" style="display:none">
+</div>
+
+<div class="card">
+<table id="table">
+<tr>
+<th>#</th><th>التفاصيل</th><th>السعر</th><th>النقاط</th><th>الإجمالي</th>
+</tr>
+</table>
+</div>
+
+<div class="card summary">
+<div>الإجمالي الكلي<span id="grand">0</span></div>
+<div>المتبقي<span id="remain">0</span></div>
+</div>
+
+<div class="card">
+<label>المُسلَّم لنا</label>
+<input id="paid" oninput="calcAll()">
+</div>
+
+</div>
+
+<script>
+const items=[
+["إنارة عادية الكهرباء لكل لمبة",1000],
+["مأخذ كهرباء مع التأريض",2000],
+["مأخذ التلفزيون",4000],
+["مأخذ التلفون",2000],
+["مأخذ سخانة كهرباء",2000],
+["مأخذ مراوح شفط",2000],
+["قواطع الطبلون",2000],
+["لمبات لطش",2000],
+["خطوط الكهرباء",1000],
+["خطوط الطاقة الشمسية",1000],
+["قص وتركيب مساطر بروفايل",2500],
+["قسامات كهرباء صغيرة",2000],
+["قسامات كهرباء كبيرة",3000],
+["فوانيس جدارية",2000],
+["برمجة لوحة الطبلون",10000],
+["تركيب مراوح سقف",3000],
+["قص وتكسير وتمديد ليات",50000]
+];
+
+const table=document.getElementById("table");
+items.forEach((it,i)=>{
+ let r=table.insertRow();
+ r.innerHTML=`<td>${i+1}</td><td>${it[0]}</td><td>${it[1]}</td>
+ <td><input type="number" value="0" oninput="calcAll()"></td>
+ <td class="sum">0</td>`;
+});
+
+function calcAll(){
+ let total=0;
+ document.querySelectorAll("#table tr").forEach((r,i)=>{
+  if(i===0)return;
+  let p=+r.cells[2].innerText;
+  let q=r.cells[3].children[0].value||0;
+  let s=p*q;
+  r.cells[4].innerText=s;
+  total+=s;
+ });
+ grand.innerText=total;
+ remain.innerText=total-(paid.value||0);
+}
+
+function exportData(){
+ let data={
+  client:client.value,
+  project:project.value,
+  paid:paid.value,
+  items:[...document.querySelectorAll("#table tr")].slice(1).map(r=>r.cells[3].children[0].value)
+ };
+ let a=document.createElement("a");
+ a.href=URL.createObjectURL(new Blob([JSON.stringify(data)],{type:"application/json"}));
+ a.download="invoice.json";
+ a.click();
+}
+
+function importData(){
+ file.onchange=e=>{
+  let r=new FileReader();
+  r.onload=()=>{
+   let d=JSON.parse(r.result);
+   client.value=d.client;
+   project.value=d.project;
+   paid.value=d.paid;
+   document.querySelectorAll("#table tr").forEach((r,i)=>{
+    if(i>0)r.cells[3].children[0].value=d.items[i-1]||0;
+   });
+   calcAll();
+  };
+  r.readAsText(e.target.files[0]);
+ };
+ file.click();
+}
+
+function fontUp(){document.documentElement.style.fontSize=(parseInt(getComputedStyle(document.documentElement).fontSize)+1)+"px"}
+function fontDown(){document.documentElement.style.fontSize=(parseInt(getComputedStyle(document.documentElement).fontSize)-1)+"px"}
+</script>
+
+</body>
+</html>

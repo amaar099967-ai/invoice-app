@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>نظام فواتير المشاريع</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+
+<body>
+
+<div class="header">نظام فواتير المشاريع – كهرباء</div>
+
+<div class="container">
+
+  <div class="card">
+    <label>اسم العميل</label>
+    <input id="client">
+
+    <label>اسم المشروع</label>
+    <input id="project">
+  </div>
+
+  <div class="card actions">
+    <button onclick="exportData()">📤 تصدير</button>
+    <button onclick="importData()">📥 استيراد</button>
+    <button onclick="window.print()">🖨️ طباعة</button>
+    <button onclick="fontUp()">A+</button>
+    <button onclick="fontDown()">A-</button>
+    <button onclick="camera.click()">📷 إدخال بالكاميرا</button>
+
+    <input type="file" id="file" hidden>
+    <input type="file" id="camera" accept="image/*" capture hidden>
+  </div>
+
+  <div class="card">
+    <table id="table">
+      <tr>
+        <th>#</th>
+        <th>التفاصيل</th>
+        <th>السعر</th>
+        <th>النقاط</th>
+        <th>الإجمالي</th>
+      </tr>
+    </table>
+  </div>
+
+  <div class="card summary">
+    <div>الإجمالي الكلي <span id="grand">0</span></div>
+    <div>المتبقي <span id="remain">0</span></div>
+  </div>
+
+  <div class="card">
+    <label>المُسلَّم لنا</label>
+    <input id="paid" oninput="calcAll()">
+  </div>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
