@@ -1,0 +1,8 @@
+invoice-app/
+│
+├── index.html
+├── style.css
+├── app.js
+├── manifest.json
+├── README.md
+└── .gitignore
